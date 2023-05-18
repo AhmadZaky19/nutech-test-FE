@@ -7,7 +7,7 @@ const SearchInput = ({ loading }) => {
   return (
     <>
       <Search
-        placeholder="input search text"
+        placeholder="cari barang..."
         enterButton="Search"
         size="large"
         loading={loading}
