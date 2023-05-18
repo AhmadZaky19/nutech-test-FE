@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Row, Col, Layout, Menu, Image, Space, Button } from "antd";
 
 import SearchInput from "../../components/searchInput";
+import AddProduct from "../../components/addProduct";
 
 const { Header, Footer, Content } = Layout;
 
@@ -77,13 +78,15 @@ const Home = () => {
         <Header>
           <Menu theme="dark" mode="horizontal">
             <Menu.Item>Login</Menu.Item>
-            <Menu.Item>Tambah Barang</Menu.Item>
           </Menu>
         </Header>
         <Content className="main__content">
           <Row className="main__content--searchBar">
-            <Col span={24}>
+            <Col span={18}>
               <SearchInput loading={loading} />
+            </Col>
+            <Col offset={5} span={1}>
+              <AddProduct />
             </Col>
           </Row>
           <Row className="main__content--table">
