@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  Row,
-  Col,
-  Layout,
-  Input,
-  Menu,
-  Image,
-  Space,
-  Button,
-} from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Table, Row, Col, Layout, Menu, Image, Space, Button } from "antd";
+
+import SearchInput from "../../components/searchInput";
 
 const { Header, Footer, Content } = Layout;
 
@@ -92,13 +83,7 @@ const Home = () => {
         <Content className="main__content">
           <Row className="main__content--searchBar">
             <Col span={24}>
-              <Input
-                size="large"
-                placeholder="Search pokemon ..."
-                prefix={<SearchOutlined />}
-                className="searchBar"
-                // onKeyPress={FindPokemon}
-              />
+              <SearchInput loading={loading} />
             </Col>
           </Row>
           <Row className="main__content--table">
@@ -122,8 +107,7 @@ const Home = () => {
         </Content>
         <Footer className="footer">
           <p className="footer__text">
-            All content & design ©, Pokemon Database 2008-2022. Pokemon images &
-            names © 1995-2022 Nintendo/Game Freak.
+            All content & design ©, Nutech Technical Test 2023.
           </p>
           <p className="footer__text">Privacy Policy</p>
         </Footer>
