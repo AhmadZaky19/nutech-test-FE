@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Table, Row, Col, Layout, Menu, Image, Space, Button } from "antd";
+import {
+  Table,
+  Row,
+  Col,
+  Layout,
+  Menu,
+  Image,
+  Space,
+  Button,
+  Modal,
+  message,
+} from "antd";
 
 import SearchInput from "../../components/searchInput";
 import AddProduct from "../../components/addProduct";
 import axios from "axios";
 
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+
 const { Header, Footer, Content } = Layout;
 
 const Home = () => {
   const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 4,
@@ -16,6 +30,7 @@ const Home = () => {
   });
   const [product, setProduct] = useState([]);
   const [search, setSearch] = useState("");
+  const [openModal, setOpenModal] = useState(false);
 
   const onClickMenu = (e) => {
     console.log("click ", e);
@@ -43,10 +58,37 @@ const Home = () => {
   };
 
   const onSearch = () => {
+    setSearchLoading(true);
     fetchProduct(search, pagination.current);
     setPagination({
       ...pagination,
       current: 1,
+    });
+    setSearchLoading(false);
+  };
+
+  const confirmDelete = (id) => {
+    setOpenModal(true);
+    Modal.confirm({
+      title: "Konfirmasi hapus data",
+      icon: <ExclamationCircleOutlined />,
+      content: "Apa anda yakin menghapus data ?",
+      okText: "Hapus",
+      cancelText: "Batal",
+      onOk: async () => {
+        await axios
+          .delete(`https://nutech-test-be-production.up.railway.app/${id}`)
+          .then(() => {
+            message.success("Berhasil hapus produk");
+            fetchProduct(search, pagination.current);
+          })
+          .catch(() => {
+            message.error("Gagal hapus produk");
+          });
+      },
+      onCancel: () => {
+        setOpenModal(false);
+      },
     });
   };
 
@@ -116,7 +158,9 @@ const Home = () => {
           <Button type="primary" size="small">
             Edit
           </Button>
-          <Button size="small">Hapus</Button>
+          <Button size="small" onClick={() => confirmDelete(value)}>
+            Hapus
+          </Button>
         </Space>
       ),
     },
@@ -147,7 +191,7 @@ const Home = () => {
           <Row className="main__content--searchBar">
             <Col span={18}>
               <SearchInput
-                loading={loading}
+                loading={searchLoading}
                 onChange={searchProduct}
                 search={onSearch}
               />
