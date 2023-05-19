@@ -38,6 +38,18 @@ const Home = () => {
       });
   };
 
+  const searchProduct = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const onSearch = () => {
+    fetchProduct(search, pagination.current);
+    setPagination({
+      ...pagination,
+      current: 1,
+    });
+  };
+
   const menuItems = [
     {
       label: "Login",
@@ -118,7 +130,7 @@ const Home = () => {
       pageSize: 4,
       total: 0,
     });
-  }, [search]);
+  }, []);
 
   return (
     <>
@@ -134,7 +146,11 @@ const Home = () => {
         <Content className="main__content">
           <Row className="main__content--searchBar">
             <Col span={18}>
-              <SearchInput loading={loading} />
+              <SearchInput
+                loading={loading}
+                onChange={searchProduct}
+                search={onSearch}
+              />
             </Col>
             <Col offset={5} span={1}>
               <AddProduct />

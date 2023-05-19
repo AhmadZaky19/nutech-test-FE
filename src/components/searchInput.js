@@ -3,7 +3,7 @@ import { Input } from "antd";
 
 const { Search } = Input;
 
-const SearchInput = ({ loading }) => {
+const SearchInput = ({ loading, onChange, search }) => {
   return (
     <>
       <Search
@@ -11,6 +11,8 @@ const SearchInput = ({ loading }) => {
         enterButton="Search"
         size="large"
         loading={loading}
+        onChange={onChange}
+        onSearch={search}
       />
     </>
   );
