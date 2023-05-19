@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Tooltip,
   Button,
@@ -11,45 +11,42 @@ import {
   Space,
   Row,
 } from "antd";
-import { PlusCircleOutlined, UploadOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 const AddProduct = ({ data }) => {
-  const [form] = Form.useForm();
-
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imageProduct, setImageProduct] = useState({});
+
+  const [form] = Form.useForm();
+  const target = useRef(imageProduct);
+
+  const handleFile = (e) => {
+    setImageProduct(e.target.files[0]);
+  };
 
   const showModal = () => {
     setOpen(true);
   };
   const submitForm = (value) => {
-    console.log(value);
-    setOpen(false);
-    message.success("success");
-    form.resetFields();
+    const payload = { ...value, image: imageProduct };
+
+    axios
+      .post("https://nutech-test-be-production.up.railway.app/", value)
+      .then((res) => {
+        message.success("Berhasil upload produk");
+        setOpen(false);
+      })
+      .catch((err) => {
+        message.error(err);
+      });
+    // form.resetFields();
   };
   const handleCancel = () => {
     setOpen(false);
   };
-  const onChangeUpload = ({ fileList, file }) => {
-    if (file.status == "uploading") {
-      setLoading(true);
-    } else if (file.status == "error") {
-      setLoading(false);
-    } else if (file.status == "done") {
-      setLoading(false);
-    }
-  };
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
 
-  // useEffect(() => {
-  //   form.resetFields();
-  // }, []);
   return (
     <>
       <Tooltip title="Tambah Barang">
@@ -76,39 +73,27 @@ const AddProduct = ({ data }) => {
           <Form.Item
             name="image"
             label="Foto Barang"
-            rules={[
-              {
-                required: data ? false : true,
-                message: "Foto barang belum diupload",
-              },
-            ]}
-            getValueFromEvent={normFile}
-            valuePropName="fileList"
+            // valuePropName="fileList"
+            // getValueFromEvent={(e) => {
+            //   return e?.fileList;
+            // }}
+            // rules={[
+            //   {
+            //     required: data ? false : true,
+            //     message: "Foto barang belum diupload",
+            //   },
+            // ]}
           >
-            <Upload
-              listType="picture"
-              // action={"http://localhost:3000/"}
-              onChange={onChangeUpload}
-              accept=".jpg, .png"
-              beforeUpload={(file) => {
-                let tes = file.type;
-                if (tes !== "image/png") {
-                  console.log(tes);
-                  message.error("hanya menerima file JPG dan PNG");
-                  // return false;
-                } else if (tes !== "image/jpeg") {
-                  console.log(tes);
-                  // return false;
-                  message.error("hanya menerima file JPG dan PNG");
-                }
-              }}
-            >
-              <Button icon={<UploadOutlined />}>Upload Foto Barang</Button>
-            </Upload>
+            <input
+              type="file"
+              // name="image"
+              ref={target}
+              onChange={handleFile}
+            />
           </Form.Item>
           <Form.Item
             label="Nama Barang"
-            name="namaBarang"
+            name="name"
             rules={[
               {
                 required: data ? false : true,
@@ -140,10 +125,7 @@ const AddProduct = ({ data }) => {
               },
             ]}
           >
-            <InputNumber
-              placeholder="Harga Jual"
-              rules={[{ required: data ? false : true }]}
-            />
+            <InputNumber placeholder="Harga Jual" />
           </Form.Item>
           <Form.Item
             label="Stok"
