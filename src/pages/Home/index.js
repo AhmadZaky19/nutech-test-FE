@@ -15,22 +15,24 @@ const Home = () => {
     total: 0,
   });
   const [product, setProduct] = useState([]);
+  const [search, setSearch] = useState("");
 
   const onClickMenu = (e) => {
     console.log("click ", e);
   };
 
-  const fetchProduct = () => {
+  const fetchProduct = (search, pagination) => {
     setLoading(true);
     axios
-      .get("https://nutech-test-be-production.up.railway.app/")
+      .get(
+        `https://nutech-test-be-production.up.railway.app/?search=${search}&page=${pagination}`
+      )
       .then((res) => {
-        console.log(res.data.pagination);
         setProduct(res.data.data);
         setPagination({
-          current: res.data.pagination.page,
-          pageSize: res.data.pagination.limit,
-          total: res.data.pagination.totalData,
+          current: res.data.pagination?.page,
+          pageSize: res.data.pagination?.limit,
+          total: res.data.pagination?.totalData,
         });
         setLoading(false);
       });
@@ -110,8 +112,13 @@ const Home = () => {
 
   useEffect(() => {
     document.title = "Nutech Test | Home";
-    fetchProduct();
-  }, []);
+    fetchProduct(search, pagination.current);
+    setPagination({
+      current: 1,
+      pageSize: 4,
+      total: 0,
+    });
+  }, [search]);
 
   return (
     <>
@@ -148,12 +155,13 @@ const Home = () => {
                   loading={loading}
                   rowKey={(record) => record.key}
                   pagination={pagination}
-                  onChange={(e) =>
-                    setPagination({
-                      ...pagination,
-                      current: e.current,
-                    })
-                  }
+                  onChange={(e) => {
+                    // setPagination({
+                    //   ...pagination,
+                    //   current: e.current,
+                    // });
+                    fetchProduct(search, e.current);
+                  }}
                   bordered
                 />
               </div>
