@@ -3,53 +3,93 @@ import { Table, Row, Col, Layout, Menu, Image, Space, Button } from "antd";
 
 import SearchInput from "../../components/searchInput";
 import AddProduct from "../../components/addProduct";
+import axios from "axios";
 
 const { Header, Footer, Content } = Layout;
 
 const Home = () => {
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 4,
+    total: 0,
+  });
+  const [product, setProduct] = useState([]);
 
-  const dataSource = [
+  const onClickMenu = (e) => {
+    console.log("click ", e);
+  };
+
+  const fetchProduct = () => {
+    setLoading(true);
+    axios
+      .get("https://nutech-test-be-production.up.railway.app/")
+      .then((res) => {
+        console.log(res.data.pagination);
+        setProduct(res.data.data);
+        setPagination({
+          current: res.data.pagination.page,
+          pageSize: res.data.pagination.limit,
+          total: res.data.pagination.totalData,
+        });
+        setLoading(false);
+      });
+  };
+
+  const menuItems = [
     {
-      namaBarang: "Tes Barang",
-      fotoBarang:
-        "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-      hargaBeli: 8000,
-      hargaJual: 10000,
-      stok: 10,
+      label: "Login",
+      key: "login",
     },
   ];
 
   const columns = [
     {
+      title: "No",
+      key: "NO",
+      align: "center",
+      render: (W, V, I) => {
+        return (
+          <span style={{ textAlign: "center", cursor: "pointer" }}>
+            {4 * (pagination.current - 1) + (I + 1)}
+          </span>
+        );
+      },
+    },
+    {
       title: "Nama Barang",
-      dataIndex: "namaBarang",
-      key: "namaBarang",
+      dataIndex: "name",
+      key: "name",
       align: "center",
     },
     {
       title: "Foto Barang",
-      dataIndex: "fotoBarang",
-      key: "fotoBarang",
+      dataIndex: "image",
+      key: "image",
       align: "center",
-      render: (value) => <Image width={100} src={value} />,
+      render: (value) => (
+        <Image
+          width={50}
+          src={`https://nutech-test-be-production.up.railway.app/image/${value}`}
+        />
+      ),
     },
     {
       title: "Harga Beli",
-      dataIndex: "hargaBeli",
-      key: "hargaBeli",
+      dataIndex: "buyPrice",
+      key: "buyPrice",
       align: "center",
     },
     {
       title: "Harga Jual",
-      dataIndex: "hargaJual",
-      key: "hargaJual",
+      dataIndex: "sellPrice",
+      key: "sellPrice",
       align: "center",
     },
     {
       title: "Stok",
-      dataIndex: "stok",
-      key: "stok",
+      dataIndex: "stock",
+      key: "stock",
       align: "center",
     },
     {
@@ -70,15 +110,19 @@ const Home = () => {
 
   useEffect(() => {
     document.title = "Nutech Test | Home";
+    fetchProduct();
   }, []);
 
   return (
     <>
-      <Layout>
+      <Layout style={{ height: "100vh" }}>
         <Header>
-          <Menu theme="dark" mode="horizontal">
-            <Menu.Item>Login</Menu.Item>
-          </Menu>
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            onClick={onClickMenu}
+            items={menuItems}
+          />
         </Header>
         <Content className="main__content">
           <Row className="main__content--searchBar">
@@ -100,8 +144,16 @@ const Home = () => {
               >
                 <Table
                   columns={columns}
-                  dataSource={dataSource}
+                  dataSource={product}
                   loading={loading}
+                  rowKey={(record) => record.key}
+                  pagination={pagination}
+                  onChange={(e) =>
+                    setPagination({
+                      ...pagination,
+                      current: e.current,
+                    })
+                  }
                   bordered
                 />
               </div>

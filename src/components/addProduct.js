@@ -31,6 +31,21 @@ const AddProduct = ({ data }) => {
   const handleCancel = () => {
     setOpen(false);
   };
+  const onChangeUpload = ({ fileList, file }) => {
+    if (file.status == "uploading") {
+      setLoading(true);
+    } else if (file.status == "error") {
+      setLoading(false);
+    } else if (file.status == "done") {
+      setLoading(false);
+    }
+  };
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
 
   // useEffect(() => {
   //   form.resetFields();
@@ -61,30 +76,69 @@ const AddProduct = ({ data }) => {
           <Form.Item
             name="image"
             label="Foto Barang"
-            rules={[{ required: data ? false : true }]}
+            rules={[
+              {
+                required: data ? false : true,
+                message: "Foto barang belum diupload",
+              },
+            ]}
+            getValueFromEvent={normFile}
+            valuePropName="fileList"
           >
-            <Upload>
+            <Upload
+              listType="picture"
+              // action={"http://localhost:3000/"}
+              onChange={onChangeUpload}
+              accept=".jpg, .png"
+              beforeUpload={(file) => {
+                let tes = file.type;
+                if (tes !== "image/png") {
+                  console.log(tes);
+                  message.error("hanya menerima file JPG dan PNG");
+                  // return false;
+                } else if (tes !== "image/jpeg") {
+                  console.log(tes);
+                  // return false;
+                  message.error("hanya menerima file JPG dan PNG");
+                }
+              }}
+            >
               <Button icon={<UploadOutlined />}>Upload Foto Barang</Button>
             </Upload>
           </Form.Item>
           <Form.Item
             label="Nama Barang"
             name="namaBarang"
-            rules={[{ required: data ? false : true }]}
+            rules={[
+              {
+                required: data ? false : true,
+                message: "Nama barang perlu diisi",
+              },
+            ]}
           >
             <Input placeholder="Nama Barang" />
           </Form.Item>
           <Form.Item
             label="Harga Beli"
             name="buyProduct"
-            rules={[{ required: data ? false : true }]}
+            rules={[
+              {
+                required: data ? false : true,
+                message: "Harga beli perlu diisi",
+              },
+            ]}
           >
             <InputNumber placeholder="Harga Beli" />
           </Form.Item>
           <Form.Item
             label="Harga Jual"
             name="sellProduct"
-            rules={[{ required: data ? false : true }]}
+            rules={[
+              {
+                required: data ? false : true,
+                message: "Harga jual perlu diisi",
+              },
+            ]}
           >
             <InputNumber
               placeholder="Harga Jual"
@@ -94,7 +148,9 @@ const AddProduct = ({ data }) => {
           <Form.Item
             label="Stok"
             name="stock"
-            rules={[{ required: data ? false : true }]}
+            rules={[
+              { required: data ? false : true, message: "Stok perlu diisi" },
+            ]}
           >
             <InputNumber placeholder="Stok" />
           </Form.Item>
