@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   Tooltip,
   Button,
@@ -11,37 +11,60 @@ import {
   Space,
   Row,
 } from "antd";
-import { PlusCircleOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
+import config from "../utils/config";
 
 const AddProduct = ({ data }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imageProduct, setImageProduct] = useState({});
+  const [files, setFiles] = useState({});
 
   const [form] = Form.useForm();
-  const target = useRef(imageProduct);
 
-  const handleFile = (e) => {
-    setImageProduct(e.target.files[0]);
+  const handleFileUpload = ({ file }) => {
+    // setFiles((pre) => {
+    //   return { ...pre, [file.uid]: file };
+    // });
+    // beforeUpload: (file) => {
+    //   const isPNG = file.type === "image/png";
+    //   const isJPEG = file.type === "image/jpeg";
+    //   if (!isPNG || !isJPEG) {
+    //     message.error(`${file.name} is not a png file`);
+    //   }
+    //   return isPNG || Upload.LIST_IGNORE;
+    // },
   };
 
   const showModal = () => {
     setOpen(true);
   };
-  const submitForm = (value) => {
-    const payload = { ...value, image: imageProduct };
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
+  const submitForm = (value) => {
+    let body = value;
+    if (value) {
+      const file = value.image[0].originFileObj;
+      body = { ...value, image: file };
+    }
+    console.log(body);
     axios
-      .post("https://nutech-test-be-production.up.railway.app/", value)
+      .post(config.API_URL_PROD, body)
       .then((res) => {
         message.success("Berhasil upload produk");
         setOpen(false);
+        axios.get(`${config.API_URL_PROD}?search=&page=1`);
       })
       .catch((err) => {
         message.error(err);
       });
-    // form.resetFields();
+    form.resetFields();
   };
   const handleCancel = () => {
     setOpen(false);
@@ -73,23 +96,18 @@ const AddProduct = ({ data }) => {
           <Form.Item
             name="image"
             label="Foto Barang"
-            // valuePropName="fileList"
-            // getValueFromEvent={(e) => {
-            //   return e?.fileList;
-            // }}
-            // rules={[
-            //   {
-            //     required: data ? false : true,
-            //     message: "Foto barang belum diupload",
-            //   },
-            // ]}
+            getValueFromEvent={normFile}
+            valuePropName="fileList"
+            rules={[
+              {
+                required: data ? false : true,
+                message: "Foto barang belum diupload",
+              },
+            ]}
           >
-            <input
-              type="file"
-              // name="image"
-              ref={target}
-              onChange={handleFile}
-            />
+            <Upload maxCount={1} customRequest={handleFileUpload}>
+              <Button icon={<UploadOutlined />}>Upload png only</Button>
+            </Upload>
           </Form.Item>
           <Form.Item
             label="Nama Barang"
@@ -105,7 +123,7 @@ const AddProduct = ({ data }) => {
           </Form.Item>
           <Form.Item
             label="Harga Beli"
-            name="buyProduct"
+            name="buyPrice"
             rules={[
               {
                 required: data ? false : true,
@@ -117,7 +135,7 @@ const AddProduct = ({ data }) => {
           </Form.Item>
           <Form.Item
             label="Harga Jual"
-            name="sellProduct"
+            name="sellPrice"
             rules={[
               {
                 required: data ? false : true,

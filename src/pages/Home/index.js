@@ -14,6 +14,7 @@ import {
 
 import SearchInput from "../../components/searchInput";
 import AddProduct from "../../components/addProduct";
+import config from "../../utils/config";
 import axios from "axios";
 
 import { ExclamationCircleOutlined } from "@ant-design/icons";
@@ -39,9 +40,7 @@ const Home = () => {
   const fetchProduct = (search, pagination) => {
     setLoading(true);
     axios
-      .get(
-        `https://nutech-test-be-production.up.railway.app/?search=${search}&page=${pagination}`
-      )
+      .get(`${config.API_URL_PROD}?search=${search}&page=${pagination}`)
       .then((res) => {
         setProduct(res.data.data);
         setPagination({
@@ -77,7 +76,7 @@ const Home = () => {
       cancelText: "Batal",
       onOk: async () => {
         await axios
-          .delete(`https://nutech-test-be-production.up.railway.app/${id}`)
+          .delete(`${config.API_URL_PROD}${id}`)
           .then(() => {
             message.success("Berhasil hapus produk");
             fetchProduct(search, pagination.current);
@@ -124,10 +123,7 @@ const Home = () => {
       key: "image",
       align: "center",
       render: (value) => (
-        <Image
-          width={50}
-          src={`https://nutech-test-be-production.up.railway.app/image/${value}`}
-        />
+        <Image width={50} src={`${config.API_URL_PROD}image/${value}`} />
       ),
     },
     {
